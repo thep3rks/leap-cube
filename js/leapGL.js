@@ -5,8 +5,8 @@ app.GLView = function( )
 	var shaderProgram;
 	var mvMatrix = mat4.create( );
 	var pMatrix = mat4.create( );
-	var triangleVertexPositionBuffer;
-	var triangleVertexColorBuffer;
+	var cubeVertexPositionBuffer;
+	var cubeVertexColorBuffer;
 
 	this.init = function( canvas )
 	{
@@ -115,8 +115,8 @@ app.GLView = function( )
 
 	this.initBuffers = function( )
 	{
-		triangleVertexPositionBuffer = gl.createBuffer( );
-		gl.bindBuffer( gl.ARRAY_BUFFER, triangleVertexPositionBuffer );
+		cubeVertexPositionBuffer = gl.createBuffer( );
+		gl.bindBuffer( gl.ARRAY_BUFFER, cubeVertexPositionBuffer );
 
 		// @formatter:off
 		var vertices = [ 1.0, -1.0,  0.0, 
@@ -126,11 +126,11 @@ app.GLView = function( )
 		// @formatter:on
 
 		gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( vertices ), gl.STATIC_DRAW );
-		triangleVertexPositionBuffer.itemSize = 3;
-		triangleVertexPositionBuffer.numItems = 3;
+		cubeVertexPositionBuffer.itemSize = 3;
+		cubeVertexPositionBuffer.numItems = 3;
 
-		triangleVertexColorBuffer = gl.createBuffer( );
-		gl.bindBuffer( gl.ARRAY_BUFFER, triangleVertexColorBuffer );
+		cubeVertexColorBuffer = gl.createBuffer( );
+		gl.bindBuffer( gl.ARRAY_BUFFER, cubeVertexColorBuffer );
 
 
 		// @formatter:off
@@ -141,8 +141,8 @@ app.GLView = function( )
 		// @formatter:on
 
 		gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( colors ), gl.STATIC_DRAW );
-		triangleVertexColorBuffer.itemSize = 4;
-		triangleVertexColorBuffer.numItems = 3;
+		cubeVertexColorBuffer.itemSize = 4;
+		cubeVertexColorBuffer.numItems = 3;
 	};
 
 	this.drawScene = function( )
@@ -156,14 +156,14 @@ app.GLView = function( )
 
 		mat4.translate( mvMatrix, [ 0.0, 0.0, -5.0 ] );
 		
-		gl.bindBuffer( gl.ARRAY_BUFFER, triangleVertexPositionBuffer );
-		gl.vertexAttribPointer( shaderProgram.vertexPositionAttribute, triangleVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0 );
+		gl.bindBuffer( gl.ARRAY_BUFFER, cubeVertexPositionBuffer );
+		gl.vertexAttribPointer( shaderProgram.vertexPositionAttribute, cubeVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0 );
 
-		gl.bindBuffer( gl.ARRAY_BUFFER, triangleVertexColorBuffer );
-		gl.vertexAttribPointer( shaderProgram.vertexColorAttribute, triangleVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0 );
+		gl.bindBuffer( gl.ARRAY_BUFFER, cubeVertexColorBuffer );
+		gl.vertexAttribPointer( shaderProgram.vertexColorAttribute, cubeVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0 );
 		
 		this.setMatrixUniforms( );
-		gl.drawArrays( gl.TRIANGLES, 0, triangleVertexPositionBuffer.numItems );
+		gl.drawArrays( gl.TRIANGLES, 0, cubeVertexPositionBuffer.numItems );
 
 	};
 
