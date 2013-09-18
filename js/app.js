@@ -8,7 +8,7 @@ var app =
 	initialise : function( )
 	{
 		app.initialiseGL( );
-		app.initialiseLeap( );
+		// app.initialiseLeap( );
 
 	},
 
@@ -70,9 +70,9 @@ var app =
 			console.log( frame.pointables.length );
 			// var pos = frame.hands[0].palmVeclocity[0];
 			// console.log(pos);
-			//            var pos = frame.pointables[0].tipPosition;
-			//            //webGL.updateRoatation(frame.pointables[0].tipPosition[0]);
-			//            webGL.updateTranslate(frame.pointables[0].tipPosition[0],
+			// var pos = frame.pointables[0].tipPosition;
+			// webGL.updateRoatation(frame.pointables[0].tipPosition[0]);
+			// webGL.updateTranslate(frame.pointables[0].tipPosition[0],
 			// frame.pointables[0].tipPosition[1], frame.pointables[0].tipPosition[2]);
 
 		}
