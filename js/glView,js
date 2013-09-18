@@ -4,9 +4,12 @@ app.GLView = function( )
 	var gl;
 	var shaderProgram;
 	var mvMatrix = mat4.create( );
+	var mvMatrixStack = [ ];
 	var pMatrix = mat4.create( );
 	var cubeVertexPositionBuffer;
 	var cubeVertexColorBuffer;
+	var rSquare = 0;
+	var lastTime = 0;
 
 	this.init = function( canvas )
 	{
@@ -132,7 +135,6 @@ app.GLView = function( )
 		cubeVertexColorBuffer = gl.createBuffer( );
 		gl.bindBuffer( gl.ARRAY_BUFFER, cubeVertexColorBuffer );
 
-
 		// @formatter:off
 		var colors = [ 1.0, 0.0, 0.0, 1.0, 
 					   0.0, 1.0, 0.0, 1.0, 
@@ -145,6 +147,43 @@ app.GLView = function( )
 		cubeVertexColorBuffer.numItems = 3;
 	};
 
+	this.mvPushMatrix = function( )
+	{
+		var copy = mat4.create( );
+
+		mat4.set( mvMatrix, copy );
+		mvMatrixStack.push( copy );
+	};
+
+	this.mvPopMatrix = function( )
+	{
+		if ( mvMatrixStack.length == 0 )
+		{
+			throw "Invalid popMatrix!";
+		}
+
+		mvMatrix = mvMatrixStack.pop( );
+	};
+
+	this.degToRad = function( degrees )
+	{
+		return degrees * Math.PI / 180;
+	};
+
+	this.animate = function( )
+	{
+		var timeNow = new Date( ).getTime( );
+		
+		if ( lastTime != 0 )
+		{
+			var elapsed = timeNow - lastTime;
+
+			rSquare += ( 90 * elapsed ) / 1000.0;
+		}
+		
+		lastTime = timeNow;
+	};
+
 	this.drawScene = function( )
 	{
 		gl.viewport( 0, 0, gl.viewportWidth, gl.viewportHeight );
@@ -155,16 +194,21 @@ app.GLView = function( )
 		mat4.identity( mvMatrix );
 
 		mat4.translate( mvMatrix, [ 0.0, 0.0, -5.0 ] );
+
+		this.mvPushMatrix( );
 		
+		mat4.rotate( mvMatrix, this.degToRad( rSquare ), [ 0, 1, 0 ] );
+
 		gl.bindBuffer( gl.ARRAY_BUFFER, cubeVertexPositionBuffer );
 		gl.vertexAttribPointer( shaderProgram.vertexPositionAttribute, cubeVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0 );
 
 		gl.bindBuffer( gl.ARRAY_BUFFER, cubeVertexColorBuffer );
 		gl.vertexAttribPointer( shaderProgram.vertexColorAttribute, cubeVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0 );
-		
+
 		this.setMatrixUniforms( );
 		gl.drawArrays( gl.TRIANGLES, 0, cubeVertexPositionBuffer.numItems );
 
+		this.mvPopMatrix( );
 	};
 
 };

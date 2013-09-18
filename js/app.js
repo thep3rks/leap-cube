@@ -2,7 +2,6 @@ var app =
 {
 
 	glView : null,
-	canvas : null,
 	controller : new Leap.Controller( ),
 
 	initialise : function( )
@@ -16,12 +15,22 @@ var app =
 	{
 		this.canvas = document.getElementById( "cube-canvas" );
 
-		this.glView = new app.GLView( );
-		this.glView.init( this.canvas );
-		this.glView.initShaders( );
-		this.glView.initBuffers( );
-		this.glView.finaliseSetup( );
-		this.glView.drawScene( );
+		glView = new app.GLView( );
+		glView.init( this.canvas );
+		glView.initShaders( );
+		glView.initBuffers( );
+		glView.finaliseSetup( );
+
+		//this.glView.drawScene( );
+
+		app.tick( ) ;
+	},
+	
+	tick : function( )
+	{
+		requestAnimFrame( app.tick );
+		glView.drawScene();
+    	glView.animate();
 	},
 
 	initialiseLeap : function( )
