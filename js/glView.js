@@ -1,6 +1,5 @@
 app.GLView = function( )
 {
-
 	var gl;
 	var shaderProgram;
 	var cubeVertexPositionBuffer;
