@@ -1,6 +1,5 @@
 app.GLView = function( )
 {
-
 	var gl;
 	var shaderProgram;
 	var cubeVertexPositionBuffer;
@@ -17,24 +16,9 @@ app.GLView = function( )
 
 	this.init = function( canvas )
 	{
-		// gl = WebGLUtils.setupWebGL( canvas );
-		// gl.viewportWidth = canvas.width;
-		// gl.viewportHeight = canvas.height;
-		
-		try
-		{
-			gl = canvas.getContext( "experimental-webgl" );
-			gl.viewportWidth = canvas.width;
-			gl.viewportHeight = canvas.height;
-		}
-		catch (e)
-		{
-		}
-		if ( !gl )
-		{
-			alert( "Could not initialise WebGL, sorry :-(" );
-		}
-
+		gl = WebGLUtils.setupWebGL( canvas );
+		gl.viewportWidth = canvas.width;
+		gl.viewportHeight = canvas.height;
 	};
 
 	this.finaliseSetup = function( )
