@@ -11,7 +11,9 @@ app.GLView = function( )
 	var mvMatrix = mat4.create( );
 	var pMatrix = mat4.create( );
 	
-	var rCube = 0;
+	var rollCube = 0;
+	var pitchCube = 0;
+	var yawCube = 0;
 	var lastTime = 0;
 
 	this.init = function( canvas )
@@ -228,18 +230,11 @@ app.GLView = function( )
 		return degrees * Math.PI / 180;
 	};
 
-	this.animate = function( )
+	this.animate = function( roll, pitch, yaw )
 	{
-		var timeNow = new Date( ).getTime( );
-
-		if ( lastTime != 0 )
-		{
-			var elapsed = timeNow - lastTime;
-
-			rCube += ( 90 * elapsed ) / 1000.0;
-		}
-
-		lastTime = timeNow;
+		rollCube += roll ;
+		pitchCube += pitch ;
+		yawCube += yaw ;
 	};
 
 	this.drawScene = function( )
@@ -255,9 +250,9 @@ app.GLView = function( )
 
 		this.mvPushMatrix( );
 		
-		mat4.rotate( mvMatrix, this.degToRad( rCube ), [ 1, 0, 0 ] );
-		mat4.rotate( mvMatrix, this.degToRad( rCube ), [ 0, 1, 0 ] );
-		mat4.rotate( mvMatrix, this.degToRad( rCube ), [ 0, 0, 1 ] );
+		mat4.rotate( mvMatrix, this.degToRad( pitchCube ), [ 1, 0, 0 ] ); // X
+		mat4.rotate( mvMatrix, this.degToRad( yawCube ), [ 0, 1, 0 ] ); // Y
+		mat4.rotate( mvMatrix, this.degToRad( rollCube ), [ 0, 0, 1 ] ); // Z
 
 		gl.bindBuffer( gl.ARRAY_BUFFER, cubeVertexPositionBuffer );
 		gl.vertexAttribPointer( shaderProgram.vertexPositionAttribute, cubeVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0 );

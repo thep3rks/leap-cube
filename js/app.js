@@ -67,22 +67,30 @@ var app =
 		{
 			var str = "";
 			var hand = frame.hands[ 0 ];
-
+			
+			var pitchAdjust = 0.3 ; // temporary : Normalising to hand position
+			
+			//ACTIVE ZONE
 			var palmX = app.roundTo2DecimalPlaces( hand.palmPosition[ 0 ] );
 			var palmY = app.roundTo2DecimalPlaces( hand.palmPosition[ 1 ] );
 			var palmZ = app.roundTo2DecimalPlaces( hand.palmPosition[ 2 ] );
 
-			var xActive = ( ( palmX > -30 ) && ( palmX < 30 ) );
+			var xActive = ( ( palmX > -60 ) && ( palmX < 60 ) );
 			var yActive = ( ( palmY > 80 ) && ( palmY < 220 ) );
 			var zActive = ( ( palmZ > 10 ) && ( palmZ < 100 ) );
 
 			var active = xActive && yActive && zActive;
-
+			
+			// MOVEMENT VALUES
+			var roll = app.roundTo2DecimalPlaces( hand.roll( ) ) ;
+			var pitch = app.roundTo2DecimalPlaces( hand.pitch( ) ) ;
+			var yaw = app.roundTo2DecimalPlaces( hand.yaw( ) ) ;
+			
 			//@formatter:off
 				str += "<p> HAND <br>" 
-					+ "<strong>Roll:</strong> " + app.roundTo2DecimalPlaces( hand.roll( ) )
-					+ "<br/><strong>Pitch:</strong> " + app.roundTo2DecimalPlaces( hand.pitch( ) ) 
-					+ "<br/><strong>Yaw:</strong> " + app.roundTo2DecimalPlaces( hand.yaw( ) ) 
+					+ "<strong>Roll:</strong> " + roll
+					+ "<br/><strong>Pitch:</strong> " + pitch 
+					+ "<br/><strong>Yaw:</strong> " + yaw 
 					+ "<br/><strong>palmPosition X:</strong> " + palmX
 					+ "<br/><strong>palmPosition Y:</strong> " + palmY
 					+ "<br/><strong>palmPosition Z:</strong> " + palmZ
@@ -127,7 +135,7 @@ var app =
 			// DRAW
 			if( active == true )
 			{
-				glView.animate( );
+				glView.animate( roll * 2, ( pitch - pitchAdjust ) * 2, yaw * 2 );
 			}
 		}
 
