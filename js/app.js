@@ -62,66 +62,81 @@ var app =
 	{
 		console.log( 'connected' );
 	},
+	
+	roundTo2DecimalPlaces : function( num )
+	{
+		return Math.round( num * 100 ) / 100;
+	},
 
 	leapLoop : function( frame )
 	{
 		if ( frame.hands.length > 0 )
 		{
 			var str = "";
-			for ( var i in frame.handsMap )
-			{
-				var hand = frame.handsMap[ i ];
-				str += "<p> HAND " + i + "<br>" 
-					+ "<strong>Roll:</strong> " + hand.roll( ) 
-					+ "<br/><strong>Pitch:</strong> " + hand.pitch( ) 
-					+ "<br/><strong>Yaw:</strong> " + hand.yaw( ) 
-					+ "<br/><strong>palmPosition:</strong> " + hand.palmPosition 
-					+ "<br/><strong>palmPosition X:</strong> " + hand.palmPosition[ 0 ] 
-					+ "<br/><strong>palmPosition Y:</strong> " + hand.palmPosition[ 1 ] 
-					+ "<br/><strong>palmPosition Z:</strong> " + hand.palmPosition[ 2 ] 
-					+ "<br/><strong>palmVelocity:</strong> " + hand.palmVelocity 
-					+ "<br/><strong>palmNormal:</strong> " + hand.palmNormal
-					+ "<br/><strong>direction:</strong> " + hand.direction
-					+ "<br/><strong>sphereCenter:</strong> " + hand.sphereCenter
-					+ "<br/><strong>sphereRadius:</strong> " + hand.sphereRadius
-					+ "</p>"
-					+ "<p> FRAME <br>" 
-					//+ "<strong>RotationAxis:</strong> " + frame.rotationAxis()
-					+ "<strong>rotationAngle X:</strong> " + frame.rotationAngle( app.controller.frame( 1 ), 0 )
-					+ "<strong>rotationAngle Y:</strong> " + frame.rotationAngle( 0,  1 )
-					+ "<strong>rotationAngle Z:</strong> " + frame.rotationAngle( 0,  2 )
-					//+ "<strong>rotationMatrix:</strong> " + frame.rotationMatrix
-					//+ "<strong>scaleFactor:</strong> " + frame.scaleFactor
-					//+ "<strong>translation:</strong> " + frame.translation
-					+ "</p>" ; 
-			// /console.log(frame[10]);
+			var hand = frame.hands[ 0 ] ;
 			
-			}
-			//console.log( str );
+			if ( hand )
+			{
+				var palmX = app.roundTo2DecimalPlaces( hand.palmPosition[ 0 ] ); 
+				var palmY = app.roundTo2DecimalPlaces( hand.palmPosition[ 1 ] );
+				var palmZ = app.roundTo2DecimalPlaces( hand.palmPosition[ 2 ] );
+				
+				var xActive = ( ( palmX > -30) && ( palmX < 30 ) ) ; 
+				var yActive = ( ( palmY > 100) && ( palmY < 200 ) ) ; 
+				var zActive = ( ( palmZ > 20) && ( palmZ < 80 ) ) ; 
+				
+				var active =  xActive && yActive && zActive ;
+				
+				str += "<p> HAND <br>" 
+					+ "<strong>Roll:</strong> " + app.roundTo2DecimalPlaces( hand.roll( ) )
+					+ "<br/><strong>Pitch:</strong> " + app.roundTo2DecimalPlaces( hand.pitch( ) ) 
+					+ "<br/><strong>Yaw:</strong> " + app.roundTo2DecimalPlaces( hand.yaw( ) ) 
+					+ "<br/><strong>palmPosition X:</strong> " + palmX
+					+ "<br/><strong>palmPosition Y:</strong> " + palmY
+					+ "<br/><strong>palmPosition Z:</strong> " + palmZ
+					// + "<br/><strong>palmVelocity X:</strong> " + app.roundTo2DecimalPlaces( hand.palmVelocity[ 0 ] )
+					// + "<br/><strong>palmVelocity Y:</strong> " + app.roundTo2DecimalPlaces( hand.palmVelocity[ 1 ] )
+					// + "<br/><strong>palmVelocity Z:</strong> " + app.roundTo2DecimalPlaces( hand.palmVelocity[ 2 ] )
+					// + "<br/><strong>sphereCenter:</strong> " + hand.sphereCenter
+					// + "<br/><strong>sphereRadius:</strong> " + hand.sphereRadius
+					// + "</p>"
+					// + "<p> FRAME <br>" 
+					// //+ "<strong>RotationAxis:</strong> " + frame.rotationAxis()
+					// + "<strong>rotationAngle X:</strong> " + frame.rotationAngle( app.controller.frame( 1 ), 0 )
+					// + "<strong>rotationAngle Y:</strong> " + frame.rotationAngle( 0,  1 )
+					// + "<strong>rotationAngle Z:</strong> " + frame.rotationAngle( 0,  2 )
+					// /+ "<strong>rotationMatrix:</strong> " + frame.rotationMatrix
+					// + "<strong>scaleFactor:</strong> " + frame.scaleFactor
+					// + "<strong>translation:</strong> " + frame.translation
+					+ "<br/><strong> -- ACTIVE -- " + active 
+					+ "</p>" ; 
+					
+				//console.log( str );
+				
+	/*
+				Hand Properties
+				palmPosition 	// ‚Äî The center of the palm measured in millimeters from the Leap origin.
+				palmVelocity 	// ‚Äî The speed of the palm in millimeters per second.
+				palmNormal 		// ‚Äî A vector perpendicular to the plane formed by the palm of the hand. The vector points downward out of the palm.
+				direction 		// ‚Äî A vector pointing from the center of the palm toward the fingers.
+				sphereCenter 	// ‚Äî The center of a sphere fit to the curvature of the hand (as if it were holding a ball).
+				sphereRadius 	// ‚Äî The radius of a sphere fit to the curvature of the hand. The radius changes with the shape of the hand.
+						
+				
+				General Frame properties
+				rotationAxis // ‚Äî A direction vector expressing the axis of rotation.
+				rotationAngle // ‚Äî The angle of rotation clockwise around the rotation axis (using the right-hand rule).
+				rotationMatrix // ‚Äî A transform matrix expressing the rotation.
+				scaleFactor // ‚Äî A factor expressing expansion or contraction.
+				translation // ‚Äî A vector expressing the linear movement.
+	*/
+	}
+	}
 			
 			document.getElementById( 'out' ).innerHTML = str;
 			
-			// console.log( frame.hands[ 0 ] );
-			// var pos = frame.hands[0].palmVeclocity[ 0 ];
 			
 			
-			
-			// Hand Properties
-			// palmPosition 	// — The center of the palm measured in millimeters from the Leap origin.
-			// palmVelocity 	// — The speed of the palm in millimeters per second.
-			// palmNormal 		// — A vector perpendicular to the plane formed by the palm of the hand. The vector points downward out of the palm.
-			// direction 		// — A vector pointing from the center of the palm toward the fingers.
-			// sphereCenter 	// — The center of a sphere fit to the curvature of the hand (as if it were holding a ball).
-			// sphereRadius 	// — The radius of a sphere fit to the curvature of the hand. The radius changes with the shape of the hand.
-					
-			
-			//General Frame properties
-			// rotationAxis // — A direction vector expressing the axis of rotation.
-			// rotationAngle // — The angle of rotation clockwise around the rotation axis (using the right-hand rule).
-			// rotationMatrix // — A transform matrix expressing the rotation.
-			// scaleFactor // — A factor expressing expansion or contraction.
-			// translation // — A vector expressing the linear movement.
-		}
 
 	},
 };
