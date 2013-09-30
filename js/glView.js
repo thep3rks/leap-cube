@@ -15,6 +15,8 @@ app.GLView = function( )
 	var pitchCube = 0;
 	var yawCube = 0;
 	var lastTime = 0;
+	
+	var moveMultiplier = 40 ;
 
 	this.init = function( canvas )
 	{
@@ -208,7 +210,7 @@ app.GLView = function( )
 	};
 
 
-	this.mvPushMatrix = function( )
+	this.animatemvPushMatrix = function( )
 	{
 		var copy = mat4.create( );
 
@@ -232,9 +234,9 @@ app.GLView = function( )
 
 	this.animate = function( roll, pitch, yaw )
 	{
-		rollCube += roll ;
-		pitchCube += pitch ;
-		yawCube += yaw ;
+		rollCube = roll * moveMultiplier ;
+		pitchCube = pitch * moveMultiplier ;
+		yawCube = -yaw * moveMultiplier ;
 	};
 
 	this.drawScene = function( )
@@ -248,7 +250,7 @@ app.GLView = function( )
 
 		mat4.translate( mvMatrix, [ 0.0, 0.0, -5.0 ] );
 
-		this.mvPushMatrix( );
+		this.animatemvPushMatrix( );
 		
 		mat4.rotate( mvMatrix, this.degToRad( pitchCube ), [ 1, 0, 0 ] ); // X
 		mat4.rotate( mvMatrix, this.degToRad( yawCube ), [ 0, 1, 0 ] ); // Y

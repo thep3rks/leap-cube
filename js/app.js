@@ -1,18 +1,21 @@
 var app =
 {
-
+	centrePoint : { x : 0, y : 120, z : 0 },
+	activeRadius : 10000, //Used as a square so 10000 = 100mm
+	haveLeap : true,
 	glView : null,
 	controller : new Leap.Controller( ),
 
 	initialise : function( )
 	{
 		app.initialiseGL( );
-		app.initialiseLeap( );
-
+		if ( this.haveLeap )
+			app.initialiseLeap( );
 	},
 
 	initialiseGL : function( )
 	{
+		console.log( "init" ) ;
 		this.canvas = document.getElementById( "cube-canvas" );
 
 		glView = new app.GLView( );
@@ -21,9 +24,9 @@ var app =
 		glView.initBuffers( );
 		glView.finaliseSetup( );
 
-		//this.glView.drawScene( );
-
-		//app.tick( );
+		//temp when no leap
+		if ( !this.haveLeap )
+			this.noLeapLoop( ) ;
 	},
 
 	initialiseLeap : function( )
@@ -67,24 +70,28 @@ var app =
 		{
 			var str = "";
 			var hand = frame.hands[ 0 ];
-			
-			var pitchAdjust = 0.3 ; // temporary : Normalising to hand position
-			
+
+			//var pitchAdjust = 0.3;
+			// temporary : Normalising to hand position
+
 			//ACTIVE ZONE
 			var palmX = app.roundTo2DecimalPlaces( hand.palmPosition[ 0 ] );
 			var palmY = app.roundTo2DecimalPlaces( hand.palmPosition[ 1 ] );
 			var palmZ = app.roundTo2DecimalPlaces( hand.palmPosition[ 2 ] );
-
-			var xActive = ( ( palmX > -60 ) && ( palmX < 60 ) );
-			var yActive = ( ( palmY > 80 ) && ( palmY < 220 ) );
-			var zActive = ( ( palmZ > 10 ) && ( palmZ < 100 ) );
-
-			var active = xActive && yActive && zActive;
 			
+			//		
+			dX = palmX - app.centrePoint.x ;	
+			dY = palmY - app.centrePoint.y ;	
+			dZ = palmZ - app.centrePoint.z ;
+			
+			active = ( (dX * dX + dY * dY + dZ * dZ) <= app.activeRadius ) ;
+
 			// MOVEMENT VALUES
-			var roll = app.roundTo2DecimalPlaces( hand.roll( ) ) ;
-			var pitch = app.roundTo2DecimalPlaces( hand.pitch( ) ) ;
-			var yaw = app.roundTo2DecimalPlaces( hand.yaw( ) ) ;
+			var roll = app.roundTo2DecimalPlaces( hand.roll( ) );
+			var pitch = app.roundTo2DecimalPlaces( hand.pitch( ) );
+			var yaw = app.roundTo2DecimalPlaces( hand.yaw( ) );
+			
+			
 			
 			//@formatter:off
 				str += "<p> HAND <br>" 
@@ -133,12 +140,23 @@ var app =
 			*/
 
 			// DRAW
-			if( active == true )
+			if ( active == true )
 			{
-				glView.animate( roll * 2, ( pitch - pitchAdjust ) * 2, yaw * 2 );
-			}
-		}
+				glView.animate( roll, pitch, yaw );
 
+			}
+			
+			glView.drawScene( );
+		}
+	},
+
+	noLeapLoop : function( )
+	{
+		requestAnimFrame( app.noLeapLoop );
+		
+		// DRAW
+		glView.animate( 2.5, 2, 1 );
+		
 		glView.drawScene( );
 	},
 };
