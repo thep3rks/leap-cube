@@ -4,6 +4,7 @@ var app =
 	activeRadius : 10000, //Used as a square so 10000 = 100mm
 	haveLeap : true,
 	glView : null,
+	canvas : null,
 	controller : new Leap.Controller( ),
 
 	initialise : function( )
@@ -16,10 +17,10 @@ var app =
 	initialiseGL : function( )
 	{
 		console.log( "init" ) ;
-		this.canvas = document.getElementById( "cube-canvas" );
+		canvas = document.getElementById( "cube-canvas" );
 
 		glView = new app.GLView( );
-		glView.init( this.canvas );
+		glView.init( canvas );
 		glView.initShaders( );
 		glView.initBuffers( );
 		glView.finaliseSetup( );
