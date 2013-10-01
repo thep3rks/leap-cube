@@ -117,7 +117,7 @@ app.GLView = function( )
 		gl.bindBuffer( gl.ARRAY_BUFFER, cubeVertexPositionBuffer );
 		
 		//@formatter:off
-		vertices = [
+		var vertices = [
 		      // Front face
 		      -1.0, -1.0,  1.0,
 		       1.0, -1.0,  1.0,
@@ -164,7 +164,7 @@ app.GLView = function( )
 		gl.bindBuffer( gl.ARRAY_BUFFER, cubeVertexColorBuffer ); 
 
     	//@formatter:off
-	    colors = [
+	    var colors = [
 		      [1.0, 0.0, 0.0, 1.0],     // Front face
 		      [1.0, 1.0, 0.0, 1.0],     // Back face
 		      [0.0, 1.0, 0.0, 1.0],     // Top face

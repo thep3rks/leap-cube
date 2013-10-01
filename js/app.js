@@ -9,9 +9,10 @@ var app =
 
 	initialise : function( )
 	{
-		app.initialiseGL( );
+		this.initialiseGL( );
+		
 		if ( this.haveLeap )
-			app.initialiseLeap( );
+			this.initialiseLeap( );
 	},
 
 	initialiseGL : function( )
@@ -81,11 +82,11 @@ var app =
 			var palmZ = app.roundTo2DecimalPlaces( hand.palmPosition[ 2 ] );
 			
 			//		
-			dX = palmX - app.centrePoint.x ;	
-			dY = palmY - app.centrePoint.y ;	
-			dZ = palmZ - app.centrePoint.z ;
+			var dX = palmX - app.centrePoint.x ;	
+			var dY = palmY - app.centrePoint.y ;	
+			var dZ = palmZ - app.centrePoint.z ;
 			
-			active = ( (dX * dX + dY * dY + dZ * dZ) <= app.activeRadius ) ;
+			var active = ( (dX * dX + dY * dY + dZ * dZ) <= app.activeRadius ) ;
 
 			// MOVEMENT VALUES
 			var roll = app.roundTo2DecimalPlaces( hand.roll( ) );
@@ -105,8 +106,8 @@ var app =
 					// + "<br/><strong>palmVelocity X:</strong> " + app.roundTo2DecimalPlaces( hand.palmVelocity[ 0 ] )
 					// + "<br/><strong>palmVelocity Y:</strong> " + app.roundTo2DecimalPlaces( hand.palmVelocity[ 1 ] )
 					// + "<br/><strong>palmVelocity Z:</strong> " + app.roundTo2DecimalPlaces( hand.palmVelocity[ 2 ] )
-					// + "<br/><strong>sphereCenter:</strong> " + hand.sphereCenter
-					// + "<br/><strong>sphereRadius:</strong> " + hand.sphereRadius
+					+ "<br/><strong>sphereCenter:</strong> " + hand.sphereCenter
+					+ "<br/><strong>sphereRadius:</strong> " + hand.sphereRadius
 					// + "</p>"
 					// + "<p> FRAME <br>" 
 					// //+ "<strong>RotationAxis:</strong> " + frame.rotationAxis()
@@ -144,7 +145,6 @@ var app =
 			if ( active == true )
 			{
 				glView.animate( roll, pitch, yaw );
-
 			}
 			
 			glView.drawScene( );
