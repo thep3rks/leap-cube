@@ -5,10 +5,11 @@ app.GLView = function( )
 	var cubeVertexPositionBuffer;
 	var cubeVertexIndexBuffer;
 	var cubeVertexTextureCoordBuffer;
+	var cubeVertexNormalBuffer;
 	var crateTexture;
 
 	var mvMatrixStack = [ ];
-
+	
 	var mvMatrix = mat4.create( );
 	var pMatrix = mat4.create( );
 
@@ -17,7 +18,6 @@ app.GLView = function( )
 	var yawCube = 0;
 	var zCube = 0;
 	var lastTime = 0;
-
 	var moveMultiplier = 40;
 
 	this.init = function( canvas )
@@ -100,21 +100,34 @@ app.GLView = function( )
 
 		gl.useProgram( shaderProgram );
 
-		shaderProgram.vertexPositionAttribute = gl.getAttribLocation( shaderProgram, "aVertexPosition" );
-		gl.enableVertexAttribArray( shaderProgram.vertexPositionAttribute );
+		shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
+        gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
 
-		shaderProgram.textureCoordAttribute = gl.getAttribLocation( shaderProgram, "aTextureCoord" );
-		gl.enableVertexAttribArray( shaderProgram.textureCoordAttribute );
+        shaderProgram.vertexNormalAttribute = gl.getAttribLocation(shaderProgram, "aVertexNormal");
+        gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
 
-		shaderProgram.pMatrixUniform = gl.getUniformLocation( shaderProgram, "uPMatrix" );
-		shaderProgram.mvMatrixUniform = gl.getUniformLocation( shaderProgram, "uMVMatrix" );
-		shaderProgram.samplerUniform = gl.getUniformLocation( shaderProgram, "uSampler" );
+        shaderProgram.textureCoordAttribute = gl.getAttribLocation(shaderProgram, "aTextureCoord");
+        gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
+
+        shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
+        shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
+        shaderProgram.nMatrixUniform = gl.getUniformLocation(shaderProgram, "uNMatrix");
+        shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, "uSampler");
+        shaderProgram.useLightingUniform = gl.getUniformLocation(shaderProgram, "uUseLighting");
+        shaderProgram.ambientColorUniform = gl.getUniformLocation(shaderProgram, "uAmbientColor");
+        shaderProgram.lightingDirectionUniform = gl.getUniformLocation(shaderProgram, "uLightingDirection");
+        shaderProgram.directionalColorUniform = gl.getUniformLocation(shaderProgram, "uDirectionalColor");
 	};
 
 	this.setMatrixUniforms = function( )
 	{
-		gl.uniformMatrix4fv( shaderProgram.pMatrixUniform, false, pMatrix );
-		gl.uniformMatrix4fv( shaderProgram.mvMatrixUniform, false, mvMatrix );
+		gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, pMatrix);
+        gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, mvMatrix);
+
+        var normalMatrix = mat3.create();
+        mat4.toInverseMat3(mvMatrix, normalMatrix);
+        mat3.transpose(normalMatrix);
+        gl.uniformMatrix3fv(shaderProgram.nMatrixUniform, false, normalMatrix);
 	};
 
 	this.initBuffers = function( )
@@ -165,6 +178,49 @@ app.GLView = function( )
 		gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( vertices ), gl.STATIC_DRAW );
 		cubeVertexPositionBuffer.itemSize = 3;
 		cubeVertexPositionBuffer.numItems = 24;
+		
+		cubeVertexNormalBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexNormalBuffer);
+        var vertexNormals = [
+            // Front face
+             0.0,  0.0,  1.0,
+             0.0,  0.0,  1.0,
+             0.0,  0.0,  1.0,
+             0.0,  0.0,  1.0,
+
+            // Back face
+             0.0,  0.0, -1.0,
+             0.0,  0.0, -1.0,
+             0.0,  0.0, -1.0,
+             0.0,  0.0, -1.0,
+
+            // Top face
+             0.0,  1.0,  0.0,
+             0.0,  1.0,  0.0,
+             0.0,  1.0,  0.0,
+             0.0,  1.0,  0.0,
+
+            // Bottom face
+             0.0, -1.0,  0.0,
+             0.0, -1.0,  0.0,
+             0.0, -1.0,  0.0,
+             0.0, -1.0,  0.0,
+
+            // Right face
+             1.0,  0.0,  0.0,
+             1.0,  0.0,  0.0,
+             1.0,  0.0,  0.0,
+             1.0,  0.0,  0.0,
+
+            // Left face
+            -1.0,  0.0,  0.0,
+            -1.0,  0.0,  0.0,
+            -1.0,  0.0,  0.0,
+            -1.0,  0.0,  0.0
+        ];
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexNormals), gl.STATIC_DRAW);
+        cubeVertexNormalBuffer.itemSize = 3;
+        cubeVertexNormalBuffer.numItems = 24;
 
 		cubeVertexTextureCoordBuffer = gl.createBuffer( );
 		gl.bindBuffer( gl.ARRAY_BUFFER, cubeVertexTextureCoordBuffer );
@@ -301,16 +357,34 @@ app.GLView = function( )
 
 		gl.bindBuffer( gl.ARRAY_BUFFER, cubeVertexPositionBuffer );
 		gl.vertexAttribPointer( shaderProgram.vertexPositionAttribute, cubeVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0 );
+		
+		gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexNormalBuffer);
+        gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, cubeVertexNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+		
 		gl.bindBuffer( gl.ARRAY_BUFFER, cubeVertexTextureCoordBuffer );
 		gl.vertexAttribPointer( shaderProgram.textureCoordAttribute, cubeVertexTextureCoordBuffer.itemSize, gl.FLOAT, false, 0, 0 );
+		
 		gl.activeTexture( gl.TEXTURE0 );
 		gl.bindTexture( gl.TEXTURE_2D, crateTexture );
 		gl.uniform1i( shaderProgram.samplerUniform, 0 );
+        gl.uniform1i(shaderProgram.useLightingUniform, true);
+        
+		// Directional
+        gl.uniform3f( shaderProgram.ambientColorUniform, 0.2, 0.2, 0.2 );
+        
+        var lightingDirection = [ -0.25, -0.25, 1 ] ;
+        
+  		var adjustedLD = vec3.create();
+        vec3.normalize(lightingDirection, adjustedLD);
+        vec3.scale(adjustedLD, -1);
+        
+        gl.uniform3fv(shaderProgram.lightingDirectionUniform, adjustedLD);
+		
+		// Ambient
+        gl.uniform3f( shaderProgram.directionalColorUniform, 0.8, 0.8, 0.8 ) ;
 
 		gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, cubeVertexIndexBuffer );
-
 		this.setMatrixUniforms( );
-
 		gl.drawElements( gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0 );
 	};
 
