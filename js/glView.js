@@ -23,8 +23,6 @@ app.GLView = function( )
 		gl = WebGLUtils.setupWebGL( canvas );
 		gl.viewportWidth = canvas.width;
 		gl.viewportHeight = canvas.height;
-		
-		//testing git
 	};
 
 	this.finaliseSetup = function( )
@@ -36,13 +34,16 @@ app.GLView = function( )
 	this.getShader = function( gl, id )
 	{
 		var shaderScript = document.getElementById( id );
+		
 		if ( !shaderScript )
 		{
 			return null;
 		}
 
+		
 		var str = "";
 		var k = shaderScript.firstChild;
+		
 		while ( k )
 		{
 			if ( k.nodeType == 3 )
@@ -53,13 +54,14 @@ app.GLView = function( )
 			k = k.nextSibling;
 		}
 
+		
 		var shader;
+		
 		if ( shaderScript.type == "x-shader/x-fragment" )
 		{
 			shader = gl.createShader( gl.FRAGMENT_SHADER );
 		}
-		else
-		if ( shaderScript.type == "x-shader/x-vertex" )
+		else if ( shaderScript.type == "x-shader/x-vertex" )
 		{
 			shader = gl.createShader( gl.VERTEX_SHADER );
 		}
