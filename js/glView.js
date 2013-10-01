@@ -3,20 +3,21 @@ app.GLView = function( )
 	var gl;
 	var shaderProgram;
 	var cubeVertexPositionBuffer;
-	var cubeVertexColorBuffer;
 	var cubeVertexIndexBuffer;
-	
+	var cubeVertexTextureCoordBuffer;
+	var neheTexture;
+
 	var mvMatrixStack = [ ];
-	
+
 	var mvMatrix = mat4.create( );
 	var pMatrix = mat4.create( );
-	
+
 	var rollCube = 0;
 	var pitchCube = 0;
 	var yawCube = 0;
 	var lastTime = 0;
-	
-	var moveMultiplier = 40 ;
+
+	var moveMultiplier = 40;
 
 	this.init = function( canvas )
 	{
@@ -34,16 +35,15 @@ app.GLView = function( )
 	this.getShader = function( gl, id )
 	{
 		var shaderScript = document.getElementById( id );
-		
+
 		if ( !shaderScript )
 		{
 			return null;
 		}
 
-		
 		var str = "";
 		var k = shaderScript.firstChild;
-		
+
 		while ( k )
 		{
 			if ( k.nodeType == 3 )
@@ -54,14 +54,14 @@ app.GLView = function( )
 			k = k.nextSibling;
 		}
 
-		
 		var shader;
-		
+
 		if ( shaderScript.type == "x-shader/x-fragment" )
 		{
 			shader = gl.createShader( gl.FRAGMENT_SHADER );
 		}
-		else if ( shaderScript.type == "x-shader/x-vertex" )
+		else
+		if ( shaderScript.type == "x-shader/x-vertex" )
 		{
 			shader = gl.createShader( gl.VERTEX_SHADER );
 		}
@@ -102,11 +102,12 @@ app.GLView = function( )
 		shaderProgram.vertexPositionAttribute = gl.getAttribLocation( shaderProgram, "aVertexPosition" );
 		gl.enableVertexAttribArray( shaderProgram.vertexPositionAttribute );
 
-		shaderProgram.vertexColorAttribute = gl.getAttribLocation( shaderProgram, "aVertexColor" );
-		gl.enableVertexAttribArray( shaderProgram.vertexColorAttribute );
+		shaderProgram.textureCoordAttribute = gl.getAttribLocation(shaderProgram, "aTextureCoord");
+        gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
 
-		shaderProgram.pMatrixUniform = gl.getUniformLocation( shaderProgram, "uPMatrix" );
-		shaderProgram.mvMatrixUniform = gl.getUniformLocation( shaderProgram, "uMVMatrix" );
+        shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
+        shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
+        shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, "uSampler");
 	};
 
 	this.setMatrixUniforms = function( )
@@ -119,7 +120,7 @@ app.GLView = function( )
 	{
 		cubeVertexPositionBuffer = gl.createBuffer( );
 		gl.bindBuffer( gl.ARRAY_BUFFER, cubeVertexPositionBuffer );
-		
+
 		//@formatter:off
 		var vertices = [
 		      // Front face
@@ -159,45 +160,62 @@ app.GLView = function( )
 		      -1.0,  1.0, -1.0,
 	    ];
 	    //@formatter:on
- 
+
 		gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( vertices ), gl.STATIC_DRAW );
 		cubeVertexPositionBuffer.itemSize = 3;
 		cubeVertexPositionBuffer.numItems = 24;
 
-		cubeVertexColorBuffer = gl.createBuffer( );
-		gl.bindBuffer( gl.ARRAY_BUFFER, cubeVertexColorBuffer ); 
+		cubeVertexTextureCoordBuffer = gl.createBuffer( );
+		gl.bindBuffer( gl.ARRAY_BUFFER, cubeVertexTextureCoordBuffer );
 
-    	//@formatter:off
-	    var colors = [
-		      [1.0, 0.0, 0.0, 1.0],     // Front face
-		      [1.0, 1.0, 0.0, 1.0],     // Back face
-		      [0.0, 1.0, 0.0, 1.0],     // Top face
-		      [1.0, 0.5, 0.5, 1.0],     // Bottom face
-		      [1.0, 0.0, 1.0, 1.0],     // Right face
-		      [0.0, 0.0, 1.0, 1.0],     // Left face
-	    ];
-    	//@formatter:on
-    	 
-    	var unpackedColors = [];
-
-		for ( var i in colors )
-		{
-			var color = colors[ i ];
-	
-			for ( var j = 0; j < 4; j++ )
-			{
-				unpackedColors = unpackedColors.concat( color );
-			}
-		}
-
-		gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( unpackedColors ), gl.STATIC_DRAW );
-		cubeVertexColorBuffer.itemSize = 4;
-		cubeVertexColorBuffer.numItems = 24;
+		//@formatter:off
+    	var textureCoords = [
+		      // Front face
+		      0.0, 0.0,
+		      1.0, 0.0,
+		      1.0, 1.0,
+		      0.0, 1.0,
 		
-		cubeVertexIndexBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeVertexIndexBuffer);
-        
-        //@formatter:off
+		      // Back face
+		      1.0, 0.0,
+		      1.0, 1.0,
+		      0.0, 1.0,
+		      0.0, 0.0,
+		
+		      // Top face
+		      0.0, 1.0,
+		      0.0, 0.0,
+		      1.0, 0.0,
+		      1.0, 1.0,
+		
+		      // Bottom face
+		      1.0, 1.0,
+		      0.0, 1.0,
+		      0.0, 0.0,
+		      1.0, 0.0,
+		
+		      // Right face
+		      1.0, 0.0,
+		      1.0, 1.0,
+		      0.0, 1.0,
+		      0.0, 0.0,
+		
+		      // Left face
+		      0.0, 0.0,
+		      1.0, 0.0,
+		      1.0, 1.0,
+		      0.0, 1.0,
+	    ];
+		//@formatter:on
+
+		gl.bufferData( gl.ARRAY_BUFFER, new Float32Array( textureCoords ), gl.STATIC_DRAW );
+		cubeVertexTextureCoordBuffer.itemSize = 2;
+		cubeVertexTextureCoordBuffer.numItems = 24;
+
+		cubeVertexIndexBuffer = gl.createBuffer( );
+		gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, cubeVertexIndexBuffer );
+
+		//@formatter:off
         var cubeVertexIndices = [
             0, 1, 2,      0, 2, 3,    // Front face
             4, 5, 6,      4, 6, 7,    // Back face
@@ -207,12 +225,29 @@ app.GLView = function( )
             20, 21, 22,   20, 22, 23  // Left face
         ];
         //@formatter:on
-        
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(cubeVertexIndices), gl.STATIC_DRAW);
-        cubeVertexIndexBuffer.itemSize = 1;
-        cubeVertexIndexBuffer.numItems = 36;
-	};
 
+		gl.bufferData( gl.ELEMENT_ARRAY_BUFFER, new Uint16Array( cubeVertexIndices ), gl.STATIC_DRAW );
+		cubeVertexIndexBuffer.itemSize = 1;
+		cubeVertexIndexBuffer.numItems = 36;
+	};
+	
+	this.handleLoadedTexture = function( )
+	{
+		gl.bindTexture( gl.TEXTURE_2D, neheTexture );
+		gl.pixelStorei( gl.UNPACK_FLIP_Y_WEBGL, true );
+		gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, neheTexture.image );
+		gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST );
+		gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST );
+		gl.bindTexture( gl.TEXTURE_2D, null );
+	};
+	
+	this.initTexture = function( )
+	{
+		neheTexture = gl.createTexture( );
+		neheTexture.image = new Image( );
+		neheTexture.image.src = "assets/nehe.gif";
+		neheTexture.image.onload = this.handleLoadedTexture( );
+	};
 
 	this.animatemvPushMatrix = function( )
 	{
@@ -238,9 +273,9 @@ app.GLView = function( )
 
 	this.animate = function( roll, pitch, yaw )
 	{
-		rollCube = roll * moveMultiplier ;
-		pitchCube = pitch * moveMultiplier ;
-		yawCube = -yaw * moveMultiplier ;
+		rollCube = roll * moveMultiplier;
+		pitchCube = pitch * moveMultiplier;
+		yawCube = -yaw * moveMultiplier;
 	};
 
 	this.drawScene = function( )
@@ -255,26 +290,24 @@ app.GLView = function( )
 		mat4.translate( mvMatrix, [ 0.0, 0.0, -5.0 ] );
 
 		this.animatemvPushMatrix( );
-		
-		mat4.rotate( mvMatrix, this.degToRad( pitchCube ), [ 1, 0, 0 ] ); // X
-		mat4.rotate( mvMatrix, this.degToRad( yawCube ), [ 0, 1, 0 ] ); // Y
-		mat4.rotate( mvMatrix, this.degToRad( rollCube ), [ 0, 0, 1 ] ); // Z
+
+		mat4.rotate( mvMatrix, this.degToRad( pitchCube ), [ 1, 0, 0 ] );	// X
+		mat4.rotate( mvMatrix, this.degToRad( yawCube ), [ 0, 1, 0 ] ); 	// Y
+		mat4.rotate( mvMatrix, this.degToRad( rollCube ), [ 0, 0, 1 ] ); 	// Z
 
 		gl.bindBuffer( gl.ARRAY_BUFFER, cubeVertexPositionBuffer );
 		gl.vertexAttribPointer( shaderProgram.vertexPositionAttribute, cubeVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0 );
-
-		gl.bindBuffer( gl.ARRAY_BUFFER, cubeVertexColorBuffer );
-		gl.vertexAttribPointer( shaderProgram.vertexColorAttribute, cubeVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0 );
+		gl.bindBuffer( gl.ARRAY_BUFFER, cubeVertexTextureCoordBuffer );
+		gl.vertexAttribPointer( shaderProgram.textureCoordAttribute, cubeVertexTextureCoordBuffer.itemSize, gl.FLOAT, false, 0, 0 );
+		gl.activeTexture( gl.TEXTURE0 );
+		gl.bindTexture( gl.TEXTURE_2D, neheTexture );
+		gl.uniform1i( shaderProgram.samplerUniform, 0 );
 
 		gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, cubeVertexIndexBuffer );
 		
 		this.setMatrixUniforms( );
 		
 		gl.drawElements( gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0 );
-
-		gl.drawArrays( gl.TRIANGLES, 0, cubeVertexPositionBuffer.numItems );
-
-		this.mvPopMatrix( );
 	};
 
 };

@@ -1,34 +1,37 @@
 var app =
 {
+	//@formatter:off
 	centrePoint : { x : 0, y : 120, z : 0 },
 	activeRadius : 10000, //Used as a square so 10000 = 100mm
 	haveLeap : true,
 	glView : null,
 	canvas : null,
 	controller : new Leap.Controller( ),
-
+	//@formatter:on
+	
 	initialise : function( )
 	{
 		this.initialiseGL( );
-		
+
 		if ( this.haveLeap )
 			this.initialiseLeap( );
 	},
 
 	initialiseGL : function( )
 	{
-		console.log( "init" ) ;
+		console.log( "init" );
 		canvas = document.getElementById( "cube-canvas" );
 
 		glView = new app.GLView( );
 		glView.init( canvas );
 		glView.initShaders( );
 		glView.initBuffers( );
+		glView.initTexture( );
 		glView.finaliseSetup( );
 
 		//temp when no leap
 		if ( !this.haveLeap )
-			this.noLeapLoop( ) ;
+			this.noLeapLoop( );
 	},
 
 	initialiseLeap : function( )
@@ -80,21 +83,19 @@ var app =
 			var palmX = app.roundTo2DecimalPlaces( hand.palmPosition[ 0 ] );
 			var palmY = app.roundTo2DecimalPlaces( hand.palmPosition[ 1 ] );
 			var palmZ = app.roundTo2DecimalPlaces( hand.palmPosition[ 2 ] );
-			
-			//		
-			var dX = palmX - app.centrePoint.x ;	
-			var dY = palmY - app.centrePoint.y ;	
-			var dZ = palmZ - app.centrePoint.z ;
-			
-			var active = ( (dX * dX + dY * dY + dZ * dZ) <= app.activeRadius ) ;
+
+			//
+			var dX = palmX - app.centrePoint.x;
+			var dY = palmY - app.centrePoint.y;
+			var dZ = palmZ - app.centrePoint.z;
+
+			var active = ( ( dX * dX + dY * dY + dZ * dZ ) <= app.activeRadius );
 
 			// MOVEMENT VALUES
 			var roll = app.roundTo2DecimalPlaces( hand.roll( ) );
 			var pitch = app.roundTo2DecimalPlaces( hand.pitch( ) );
 			var yaw = app.roundTo2DecimalPlaces( hand.yaw( ) );
-			
-			
-			
+
 			//@formatter:off
 				str += "<p> HAND <br>" 
 					+ "<strong>Roll:</strong> " + roll
@@ -146,7 +147,7 @@ var app =
 			{
 				glView.animate( roll, pitch, yaw );
 			}
-			
+
 			glView.drawScene( );
 		}
 	},
@@ -154,10 +155,10 @@ var app =
 	noLeapLoop : function( )
 	{
 		requestAnimFrame( app.noLeapLoop );
-		
+
 		// DRAW
 		glView.animate( 2.5, 2, 1 );
-		
+
 		glView.drawScene( );
 	},
 };
