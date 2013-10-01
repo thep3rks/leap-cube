@@ -5,7 +5,7 @@ app.GLView = function( )
 	var cubeVertexPositionBuffer;
 	var cubeVertexIndexBuffer;
 	var cubeVertexTextureCoordBuffer;
-	var neheTexture;
+	var crateTexture;
 
 	var mvMatrixStack = [ ];
 
@@ -15,6 +15,7 @@ app.GLView = function( )
 	var rollCube = 0;
 	var pitchCube = 0;
 	var yawCube = 0;
+	var zCube = 0;
 	var lastTime = 0;
 
 	var moveMultiplier = 40;
@@ -102,12 +103,12 @@ app.GLView = function( )
 		shaderProgram.vertexPositionAttribute = gl.getAttribLocation( shaderProgram, "aVertexPosition" );
 		gl.enableVertexAttribArray( shaderProgram.vertexPositionAttribute );
 
-		shaderProgram.textureCoordAttribute = gl.getAttribLocation(shaderProgram, "aTextureCoord");
-        gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
+		shaderProgram.textureCoordAttribute = gl.getAttribLocation( shaderProgram, "aTextureCoord" );
+		gl.enableVertexAttribArray( shaderProgram.textureCoordAttribute );
 
-        shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
-        shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
-        shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, "uSampler");
+		shaderProgram.pMatrixUniform = gl.getUniformLocation( shaderProgram, "uPMatrix" );
+		shaderProgram.mvMatrixUniform = gl.getUniformLocation( shaderProgram, "uMVMatrix" );
+		shaderProgram.samplerUniform = gl.getUniformLocation( shaderProgram, "uSampler" );
 	};
 
 	this.setMatrixUniforms = function( )
@@ -230,23 +231,26 @@ app.GLView = function( )
 		cubeVertexIndexBuffer.itemSize = 1;
 		cubeVertexIndexBuffer.numItems = 36;
 	};
-	
+
 	this.handleLoadedTexture = function( )
 	{
-		gl.bindTexture( gl.TEXTURE_2D, neheTexture );
-		gl.pixelStorei( gl.UNPACK_FLIP_Y_WEBGL, true );
-		gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, neheTexture.image );
-		gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST );
-		gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST );
-		gl.bindTexture( gl.TEXTURE_2D, null );
+		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+
+        gl.bindTexture(gl.TEXTURE_2D, crateTexture);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, crateTexture.image);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+        gl.generateMipmap(gl.TEXTURE_2D);
+
+        gl.bindTexture(gl.TEXTURE_2D, null);
 	};
-	
+
 	this.initTexture = function( )
 	{
-		neheTexture = gl.createTexture( );
-		neheTexture.image = new Image( );
-		neheTexture.image.src = "assets/nehe.gif";
-		neheTexture.image.onload = this.handleLoadedTexture( );
+		crateTexture = gl.createTexture( );
+		crateTexture.image = new Image( );
+		crateTexture.image.src = "assets/crate.gif";
+		crateTexture.image.onload = this.handleLoadedTexture( );
 	};
 
 	this.animatemvPushMatrix = function( )
@@ -271,11 +275,12 @@ app.GLView = function( )
 		return degrees * Math.PI / 180;
 	};
 
-	this.animate = function( roll, pitch, yaw )
+	this.animate = function( roll, pitch, yaw, z )
 	{
 		rollCube = roll * moveMultiplier;
 		pitchCube = pitch * moveMultiplier;
 		yawCube = -yaw * moveMultiplier;
+		zCube = z;
 	};
 
 	this.drawScene = function( )
@@ -286,27 +291,26 @@ app.GLView = function( )
 		mat4.perspective( 45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0, pMatrix );
 
 		mat4.identity( mvMatrix );
-
-		mat4.translate( mvMatrix, [ 0.0, 0.0, -5.0 ] );
+		mat4.translate( mvMatrix, [ 0.0, 0.0, zCube ] );
 
 		this.animatemvPushMatrix( );
 
-		mat4.rotate( mvMatrix, this.degToRad( pitchCube ), [ 1, 0, 0 ] );	// X
-		mat4.rotate( mvMatrix, this.degToRad( yawCube ), [ 0, 1, 0 ] ); 	// Y
-		mat4.rotate( mvMatrix, this.degToRad( rollCube ), [ 0, 0, 1 ] ); 	// Z
+		mat4.rotate( mvMatrix, this.degToRad( pitchCube ), [ 1, 0, 0 ] );
+		mat4.rotate( mvMatrix, this.degToRad( yawCube ), [ 0, 1, 0 ] );
+		mat4.rotate( mvMatrix, this.degToRad( rollCube ), [ 0, 0, 1 ] );
 
 		gl.bindBuffer( gl.ARRAY_BUFFER, cubeVertexPositionBuffer );
 		gl.vertexAttribPointer( shaderProgram.vertexPositionAttribute, cubeVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0 );
 		gl.bindBuffer( gl.ARRAY_BUFFER, cubeVertexTextureCoordBuffer );
 		gl.vertexAttribPointer( shaderProgram.textureCoordAttribute, cubeVertexTextureCoordBuffer.itemSize, gl.FLOAT, false, 0, 0 );
 		gl.activeTexture( gl.TEXTURE0 );
-		gl.bindTexture( gl.TEXTURE_2D, neheTexture );
+		gl.bindTexture( gl.TEXTURE_2D, crateTexture );
 		gl.uniform1i( shaderProgram.samplerUniform, 0 );
 
 		gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, cubeVertexIndexBuffer );
-		
+
 		this.setMatrixUniforms( );
-		
+
 		gl.drawElements( gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0 );
 	};
 
