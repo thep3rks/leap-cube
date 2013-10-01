@@ -23,6 +23,8 @@ app.GLView = function( )
 		gl = WebGLUtils.setupWebGL( canvas );
 		gl.viewportWidth = canvas.width;
 		gl.viewportHeight = canvas.height;
+		
+		//testing git
 	};
 
 	this.finaliseSetup = function( )
