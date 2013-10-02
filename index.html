@@ -8,17 +8,20 @@
 <script type="text/javascript" src="js/webgl-utils.js"></script>
 
 <script id="shader-fs" type="x-shader/x-fragment">
-    precision mediump float;
+	precision mediump float;
 
-    varying vec2 vTextureCoord;
-    varying vec3 vLightWeighting;
+	varying vec2 vTextureCoord;
+	varying vec3 vLightWeighting;
 
-    uniform sampler2D uSampler;
+	uniform float uAlpha;
 
-    void main(void) {
-    	vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
-     	gl_FragColor = vec4(textureColor.rgb * vLightWeighting, textureColor.a);
-    }
+	uniform sampler2D uSampler;
+
+	void main(void) 
+	{
+		vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
+		gl_FragColor = vec4(textureColor.rgb * vLightWeighting, textureColor.a * uAlpha);
+	}
 </script>
 
 <script id="shader-vs" type="x-shader/x-vertex">
@@ -56,7 +59,6 @@
 			vLightWeighting = uAmbientColor + uDirectionalColor * directionalLightWeighting;
 		}
 	}
-
 </script>
 
 
@@ -66,7 +68,7 @@
 </head>
 
 <body onload="app.initialise()">
-    <canvas id="cube-canvas" style="border: none;" width="400" height="400"> </canvas>
+    <canvas id="cube-canvas" style="border: none;" width="500" height="500"> </canvas>
     <div id="out"> </div>
 </body>
 

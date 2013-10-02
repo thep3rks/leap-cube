@@ -117,6 +117,7 @@ app.GLView = function( )
         shaderProgram.ambientColorUniform = gl.getUniformLocation(shaderProgram, "uAmbientColor");
         shaderProgram.lightingDirectionUniform = gl.getUniformLocation(shaderProgram, "uLightingDirection");
         shaderProgram.directionalColorUniform = gl.getUniformLocation(shaderProgram, "uDirectionalColor");
+        shaderProgram.alphaUniform = gl.getUniformLocation(shaderProgram, "uAlpha");
 	};
 
 	this.setMatrixUniforms = function( )
@@ -305,7 +306,7 @@ app.GLView = function( )
 	{
 		crateTexture = gl.createTexture( );
 		crateTexture.image = new Image( );
-		crateTexture.image.src = "assets/crate.gif";
+		crateTexture.image.src = "assets/glass.gif";
 		crateTexture.image.onload = this.handleLoadedTexture( );
 	};
 
@@ -341,9 +342,9 @@ app.GLView = function( )
 
 	this.animateStatic = function( )
 	{
-		pitchCube += 1;
-		rollCube += 1;
-		yawCube += 1;
+		pitchCube += 0.3;
+		rollCube += 0.6;
+		yawCube += 0.4;
 		zCube = -5;
 	};
 
@@ -366,20 +367,30 @@ app.GLView = function( )
 		gl.bindBuffer( gl.ARRAY_BUFFER, cubeVertexPositionBuffer );
 		gl.vertexAttribPointer( shaderProgram.vertexPositionAttribute, cubeVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0 );
 		
-		gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexNormalBuffer);
-        gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, cubeVertexNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
-		
+		gl.bindBuffer( gl.ARRAY_BUFFER, cubeVertexNormalBuffer );
+		gl.vertexAttribPointer( shaderProgram.vertexNormalAttribute, cubeVertexNormalBuffer.itemSize, gl.FLOAT, false, 0, 0 );
+
 		gl.bindBuffer( gl.ARRAY_BUFFER, cubeVertexTextureCoordBuffer );
 		gl.vertexAttribPointer( shaderProgram.textureCoordAttribute, cubeVertexTextureCoordBuffer.itemSize, gl.FLOAT, false, 0, 0 );
 		
+		// TEXTURES //
 		gl.activeTexture( gl.TEXTURE0 );
 		gl.bindTexture( gl.TEXTURE_2D, crateTexture );
 		gl.uniform1i( shaderProgram.samplerUniform, 0 );
-        gl.uniform1i(shaderProgram.useLightingUniform, true);
-        
+
+		// ALPHA / BLENDING //
+		gl.blendFunc( gl.SRC_ALPHA, gl.ONE );
+		gl.enable( gl.BLEND );
+		gl.disable( gl.DEPTH_TEST );
+		gl.uniform1f( shaderProgram.alphaUniform, 0.5 );
+
+		// LIGHTING //
+		gl.uniform1i( shaderProgram.useLightingUniform, true );
+
+		// Ambient
+		gl.uniform3f( shaderProgram.ambientColorUniform, 0.5, 0.5, 0.5 ); 
+
 		// Directional
-        gl.uniform3f( shaderProgram.ambientColorUniform, 0.2, 0.2, 0.2 );
-        
         var lightingDirection = [ -0.25, -0.25, -1 ] ;
         
   		var adjustedLD = vec3.create();
@@ -387,8 +398,8 @@ app.GLView = function( )
         vec3.scale(adjustedLD, -1);
         gl.uniform3fv(shaderProgram.lightingDirectionUniform, adjustedLD);
 		
-		// Ambient
         gl.uniform3f( shaderProgram.directionalColorUniform, 0.8, 0.8, 0.8 ) ;
+
 
 		gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, cubeVertexIndexBuffer );
 		this.setMatrixUniforms( );
