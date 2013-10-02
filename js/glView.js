@@ -297,7 +297,7 @@ app.GLView = function( )
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
         gl.generateMipmap(gl.TEXTURE_2D);
-
+        
         gl.bindTexture(gl.TEXTURE_2D, null);
 	};
 
@@ -333,10 +333,18 @@ app.GLView = function( )
 
 	this.animate = function( roll, pitch, yaw, z )
 	{
-		rollCube = roll * moveMultiplier;
 		pitchCube = pitch * moveMultiplier;
+		rollCube = roll * moveMultiplier;
 		yawCube = -yaw * moveMultiplier;
 		zCube = z;
+	};
+
+	this.animateStatic = function( )
+	{
+		pitchCube += 1;
+		rollCube += 1;
+		yawCube += 1;
+		zCube = -5;
 	};
 
 	this.drawScene = function( )
@@ -372,12 +380,11 @@ app.GLView = function( )
 		// Directional
         gl.uniform3f( shaderProgram.ambientColorUniform, 0.2, 0.2, 0.2 );
         
-        var lightingDirection = [ -0.25, -0.25, 1 ] ;
+        var lightingDirection = [ -0.25, -0.25, -1 ] ;
         
   		var adjustedLD = vec3.create();
         vec3.normalize(lightingDirection, adjustedLD);
         vec3.scale(adjustedLD, -1);
-        
         gl.uniform3fv(shaderProgram.lightingDirectionUniform, adjustedLD);
 		
 		// Ambient

@@ -3,7 +3,7 @@ var app =
 	//@formatter:off
 	centrePoint : { x : 0, y : 120, z : 0 },
 	activeRadius : 10000, //Used as a square so 10000 = 100mm
-	haveLeap : true,
+	haveLeap : false,
 	glView : null,
 	canvas : null,
 	controller : new Leap.Controller( ),
@@ -123,7 +123,7 @@ var app =
 			{
 				// can add positioning here
 				// glView.animate( roll, pitch, yaw, (palmZ / 20) - 5 );
-				glView.animate( roll, pitch, yaw, -5 );
+				glView.animate( pitch, roll, yaw, -5 );
 			}
 
 			glView.drawScene( );
@@ -135,7 +135,7 @@ var app =
 		requestAnimFrame( app.noLeapLoop );
 
 		// DRAW
-		glView.animate( 2.5, 2, 1 );
+		glView.animateStatic( );
 
 		glView.drawScene( );
 	},
