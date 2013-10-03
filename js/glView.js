@@ -306,7 +306,7 @@ app.GLView = function( )
 	{
 		crateTexture = gl.createTexture( );
 		crateTexture.image = new Image( );
-		crateTexture.image.src = "assets/glass.gif";
+		crateTexture.image.src = "assets/glass1.png";
 		crateTexture.image.onload = this.handleLoadedTexture( );
 	};
 
