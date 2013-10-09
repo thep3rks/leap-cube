@@ -29,7 +29,7 @@ app.GLView = function( )
 
 	this.finaliseSetup = function( )
 	{
-		gl.clearColor( 0.0, 0.0, 0.0, 1.0 );
+		gl.clearColor( 0.1, 0.1, 0.1, 1.0 );
 		gl.enable( gl.DEPTH_TEST );
 	};
 
@@ -306,7 +306,7 @@ app.GLView = function( )
 	{
 		crateTexture = gl.createTexture( );
 		crateTexture.image = new Image( );
-		crateTexture.image.src = "assets/glass.gif";
+		crateTexture.image.src = "assets/glass1.png";
 		crateTexture.image.onload = this.handleLoadedTexture( );
 	};
 

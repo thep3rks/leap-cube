@@ -1,9 +1,9 @@
 var app =
 {
 	//@formatter:off
-	centrePoint : { x : 0, y : 120, z : 0 },
-	activeRadius : 10000, //Used as a square so 10000 = 100mm
-	haveLeap : false,
+	centrePoint : { x : 0, y : 200, z : 0 }, //mm
+	activeRadius : 20000, //Used as a square so 10000 = 10cm
+	haveLeap : true,
 	glView : null,
 	canvas : null,
 	controller : new Leap.Controller( ),
@@ -76,9 +76,6 @@ var app =
 			var str = "";
 			var hand = frame.hands[ 0 ];
 
-			//var pitchAdjust = 0.3;
-			// temporary : Normalising to hand position
-
 			//ACTIVE ZONE
 			var palmX = app.roundTo2DecimalPlaces( hand.palmPosition[ 0 ] );
 			var palmY = app.roundTo2DecimalPlaces( hand.palmPosition[ 1 ] );
@@ -122,8 +119,8 @@ var app =
 			if ( active == true )
 			{
 				// can add positioning here
-				// glView.animate( roll, pitch, yaw, (palmZ / 20) - 5 );
-				glView.animate( pitch, roll, yaw, -5 );
+				glView.animate( roll, pitch, yaw, (palmZ / 20) - 10 );
+				// glView.animate( pitch, roll, yaw, -5 );
 			}
 
 			glView.drawScene( );
